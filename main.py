@@ -1,0 +1,150 @@
+# main.py
+from storage import load_users, save_users, add_user, get_user, update_user
+from user import User
+
+def clear_screen():
+    try:
+        import os
+        os.system('cls' if os.name == 'nt' else 'clear')
+    except Exception:
+        pass
+
+def login(users):
+    username = input("Username: ").strip()
+    pwd = input("Password: ").strip()
+    u = get_user(users, username)
+    if u is None:
+        print("No such user.")
+        return None
+    if u.check_password(pwd):
+        return u
+    print("Wrong password.")
+    return None
+
+def admin_menu(admin_user: User, users: dict):
+    while True:
+        print("\n--- ADMIN MENU ---")
+        print("1) Add new user")
+        print("2) View any user's balance")
+        print("3) Grant permission (owner grants someone to view owner's balance)")
+        print("4) Revoke permission")
+        print("5) Logout")
+        choice = input("Select: ").strip()
+        if choice == "1":
+            uname = input("New username: ").strip()
+            if uname == "":
+                print("Invalid username.")
+                continue
+            if uname in users:
+                print("Username already exists.")
+                continue
+            pwd = input("Password for new user: ").strip()
+            bal_s = input("Initial balance (number, default 0): ").strip()
+            try:
+                bal = float(bal_s) if bal_s != "" else 0.0
+            except ValueError:
+                print("Invalid balance, using 0.")
+                bal = 0.0
+            added = add_user(users, uname, pwd, bal)
+            if added:
+                print(f"User '{uname}' added.")
+            else:
+                print("Failed to add user (already exists).")
+        elif choice == "2":
+            target = input("Enter username to view balance: ").strip()
+            t = get_user(users, target)
+            if t is None:
+                print("No such user.")
+            else:
+                print(f"{target} balance: {t.balance:.2f}")
+        elif choice == "3":
+            owner = input("Owner username (whose balance to allow viewing): ").strip()
+            if owner not in users:
+                print("Owner not found.")
+                continue
+            grantee = input("Grant view permission to (username): ").strip()
+            if grantee not in users:
+                print("Grantee not found.")
+                continue
+            users[owner].grant_permission(grantee)
+            update_user(users, owner)
+            print(f"{grantee} can now view {owner}'s balance.")
+        elif choice == "4":
+            owner = input("Owner username (whose permission to revoke): ").strip()
+            if owner not in users:
+                print("Owner not found.")
+                continue
+            grantee = input("Revoke permission from (username): ").strip()
+            users[owner].revoke_permission(grantee)
+            update_user(users, owner)
+            print(f"Permission removed (if existed).")
+        elif choice == "5":
+            print("Logging out admin.")
+            break
+        else:
+            print("Invalid choice.")
+
+def user_menu(user: User, users: dict):
+    while True:
+        print(f"\n--- MENU (logged in as {user.username}) ---")
+        print("1) View your balance")
+        print("2) View another user's balance (only if they permitted you)")
+        print("3) Give permission to another user to view your balance")
+        print("4) Revoke permission")
+        print("5) Logout")
+        choice = input("Select: ").strip()
+        if choice == "1":
+            print(f"Your balance: {user.balance:.2f}")
+        elif choice == "2":
+            target = input("Enter username to view: ").strip()
+            if target not in users:
+                print("No such user.")
+                continue
+            if user.username == target or user.username in users[target].permissions:
+                print(f"{target} balance: {users[target].balance:.2f}")
+            else:
+                print("Access denied. The other user hasn't granted you permission.")
+        elif choice == "3":
+            grantee = input("Enter username to grant permission to: ").strip()
+            if grantee not in users:
+                print("No such user.")
+                continue
+            user.grant_permission(grantee)
+            update_user(users, user.username)
+            print(f"{grantee} can now view your balance.")
+        elif choice == "4":
+            grantee = input("Enter username to revoke permission from: ").strip()
+            user.revoke_permission(grantee)
+            update_user(users, user.username)
+            print("Permission revoked (if it existed).")
+        elif choice == "5":
+            print("Logging out.")
+            break
+        else:
+            print("Invalid choice.")
+
+def main():
+    users = load_users()
+    print("=== Simple Bank CLI (JSON storage, base64 password) ===")
+    while True:
+        print("\n1) Login")
+        print("2) Exit")
+        cmd = input("Choose: ").strip()
+        if cmd == "1":
+            u = login(users)
+            if u is None:
+                continue
+            if u.username == "kerolos":
+                admin_menu(u, users)
+            else:
+                user_menu(u, users)
+            # reload users in case admin made changes
+            users = load_users()
+        elif cmd == "2":
+            print("Bye.")
+            break
+        else:
+            print("Invalid option.")
+
+if __name__ == "__main__":
+    main()
