@@ -3,7 +3,6 @@ import hashlib
 
 class User:
     """
-    User object:
       - username (str)
       - password (stored hashed)
       - balance (float)
