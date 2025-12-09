@@ -1,16 +1,30 @@
 {
     "kerolos": {
         "username": "kerolos",
-        "password": "MDAwMA==",
+        "password": "9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0",
         "balance": 0.0,
+        "permissions": []
+    },
+    "mina": {
+        "username": "mina",
+        "password": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
+        "balance": 10000.0,
         "permissions": [
-            "mohamed"
+            "ayman"
         ]
     },
-    "mohamed": {
-        "username": "mohamed",
-        "password": "NTU1NTU=",
-        "balance": 22.4,
+    "ayman": {
+        "username": "ayman",
+        "password": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9",
+        "balance": 20000.0,
+        "permissions": [
+            "mina"
+        ]
+    },
+    "ahmed": {
+        "username": "ahmed",
+        "password": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+        "balance": 2020.0,
         "permissions": []
     }
 }

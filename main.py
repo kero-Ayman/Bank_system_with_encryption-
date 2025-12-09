@@ -2,6 +2,31 @@
 from storage import load_users, save_users, add_user, get_user, update_user
 from user import User
 
+
+
+def main():
+
+    print("=== Welcom to my Bank ===")
+    while True:
+        users = load_users()
+        print("\n1) Login")
+        print("2) Exit")
+        choice = input("Choose: ").strip()
+        if choice == "1":
+            u = login(users)
+            if u is None:
+                continue
+            if u.username == "kerolos":
+                admin_menu(u, users)
+            else:
+                user_menu(u, users)
+            
+        elif choice == "2":
+            print("Bank_closed!")
+            break
+        else:
+            print("Invalid option.")
+
 def clear_screen():
     try:
         import os
@@ -11,13 +36,13 @@ def clear_screen():
 
 def login(users):
     username = input("Username: ").strip()
-    pwd = input("Password: ").strip()
-    u = get_user(users, username)
-    if u is None:
+    passe = input("Password: ").strip()
+    user1 = get_user(users, username)
+    if user1 is None:
         print("No such user.")
         return None
-    if u.check_password(pwd):
-        return u
+    if user1.check_password(passe):
+        return user1
     print("Wrong password.")
     return None
 
@@ -27,10 +52,11 @@ def admin_menu(admin_user: User, users: dict):
         print("1) Add new user")
         print("2) View any user's balance")
         print("3) Grant permission (owner grants someone to view owner's balance)")
-        print("4) Revoke permission")
+        print("4) Remove permission")
         print("5) Logout")
         choice = input("Select: ").strip()
         if choice == "1":
+            """add new user"""
             uname = input("New username: ").strip()
             if uname == "":
                 print("Invalid username.")
@@ -39,12 +65,10 @@ def admin_menu(admin_user: User, users: dict):
                 print("Username already exists.")
                 continue
             pwd = input("Password for new user: ").strip()
-            bal_s = input("Initial balance (number, default 0): ").strip()
-            try:
-                bal = float(bal_s) if bal_s != "" else 0.0
-            except ValueError:
-                print("Invalid balance, using 0.")
-                bal = 0.0
+            
+            bal_input = input("Initial balance (number, default 0): ").strip()
+            bal = float(bal_input) if bal_input else 0.0
+
             added = add_user(users, uname, pwd, bal)
             if added:
                 print(f"User '{uname}' added.")
@@ -70,12 +94,12 @@ def admin_menu(admin_user: User, users: dict):
             update_user(users, owner)
             print(f"{grantee} can now view {owner}'s balance.")
         elif choice == "4":
-            owner = input("Owner username (whose permission to revoke): ").strip()
+            owner = input("Owner username (whose permission to remove): ").strip()
             if owner not in users:
                 print("Owner not found.")
                 continue
-            grantee = input("Revoke permission from (username): ").strip()
-            users[owner].revoke_permission(grantee)
+            grantee = input("Remove permission from (username): ").strip()
+            users[owner].remove_permission(grantee)
             update_user(users, owner)
             print(f"Permission removed (if existed).")
         elif choice == "5":
@@ -90,7 +114,7 @@ def user_menu(user: User, users: dict):
         print("1) View your balance")
         print("2) View another user's balance (only if they permitted you)")
         print("3) Give permission to another user to view your balance")
-        print("4) Revoke permission")
+        print("4) Remove permission")
         print("5) Logout")
         choice = input("Select: ").strip()
         if choice == "1":
@@ -113,38 +137,15 @@ def user_menu(user: User, users: dict):
             update_user(users, user.username)
             print(f"{grantee} can now view your balance.")
         elif choice == "4":
-            grantee = input("Enter username to revoke permission from: ").strip()
-            user.revoke_permission(grantee)
+            grantee = input("Enter username to remove permission from: ").strip()
+            user.remove_permission(grantee)
             update_user(users, user.username)
-            print("Permission revoked (if it existed).")
+            print("Permission removed (if it existed).")
         elif choice == "5":
             print("Logging out.")
             break
         else:
             print("Invalid choice.")
-
-def main():
-    users = load_users()
-    print("=== Simple Bank CLI (JSON storage, base64 password) ===")
-    while True:
-        print("\n1) Login")
-        print("2) Exit")
-        cmd = input("Choose: ").strip()
-        if cmd == "1":
-            u = login(users)
-            if u is None:
-                continue
-            if u.username == "kerolos":
-                admin_menu(u, users)
-            else:
-                user_menu(u, users)
-            # reload users in case admin made changes
-            users = load_users()
-        elif cmd == "2":
-            print("Bye.")
-            break
-        else:
-            print("Invalid option.")
 
 if __name__ == "__main__":
     main()

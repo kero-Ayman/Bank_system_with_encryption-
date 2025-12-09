@@ -6,7 +6,7 @@ from user import User
 
 USERS_FILE = "users.json"
 ADMIN_USERNAME = "kerolos"
-ADMIN_PASSWORD = "0000"   # base64 will be used when creating user
+ADMIN_PASSWORD = "0000"   # will now be hashed with SHA-256
 ADMIN_BALANCE = 0.0
 
 def load_users() -> Dict[str, User]:
@@ -20,15 +20,9 @@ def load_users() -> Dict[str, User]:
         return {ADMIN_USERNAME: admin}
 
     with open(USERS_FILE, "r", encoding="utf-8") as f:
-        try:
-            raw = json.load(f)
-        except json.JSONDecodeError:
-            # If corrupted, re-create admin
-            admin = User(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_BALANCE, permissions=[])
-            data = {ADMIN_USERNAME: admin.to_dict()}
-            with open(USERS_FILE, "w", encoding="utf-8") as f2:
-                json.dump(data, f2, indent=4)
-            return {ADMIN_USERNAME: admin}
+        '''read the file content'''
+        raw = json.load(f)
+
 
     users = {}
     for uname, udata in raw.items():
@@ -42,7 +36,11 @@ def load_users() -> Dict[str, User]:
 
 def save_users(users: Dict[str, User]):
     """Save the users dict (username->User) to USERS_FILE."""
-    serial = {uname: user.to_dict() for uname, user in users.items()}
+    serial = {}  # create an empty dictionary first
+    for uname, user in users.items():
+        # convert each User object to a dictionary
+        serial[uname] = user.to_dict()  
+
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(serial, f, indent=4)
 
@@ -61,5 +59,5 @@ def get_user(users: Dict[str, User], username: str) -> User:
     return users.get(username)
 
 def update_user(users: Dict[str, User], username: str):
-    """Persist a single user's current state to file (save all)."""
+
     save_users(users)

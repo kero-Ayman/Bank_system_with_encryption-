@@ -1,11 +1,11 @@
 # user.py
-import base64
+import hashlib
 
 class User:
     """
     User object:
       - username (str)
-      - password (stored encypted ))
+      - password (stored hashed)
       - balance (float)
       - permissions (list of usernames allowed to view this user's balance)
     """
@@ -18,20 +18,15 @@ class User:
 
     @staticmethod
     def encode_password(plain: str) -> str:
-        """Encode password using base64 (easy reversible encoding per spec)."""
-        if isinstance(plain, str):
-            plain = plain.encode('utf-8')
-        return base64.b64encode(plain).decode('utf-8')
-
-    @staticmethod
-    def decode_password(ceyhier: str) -> str:
-        """Decode base64 password back to plain text."""
-        return base64.b64decode(ceyhier.encode('utf-8')).decode('utf-8')
+        """Hash password using SHA-256 (one-way)."""
+        plain = plain.encode("utf-8")
+        return hashlib.sha256(plain).hexdigest()
 
 
     def check_password(self, plain: str) -> bool:
-        """Compare a plaintext password to the stored (encoded) password."""
-        return self.encode_password(plain) == self.password
+        """Compare a plaintext password to the stored hashed password."""
+        hashed_input = hashlib.sha256(plain.encode()).hexdigest()
+        return hashed_input == self.password
 
     def to_dict(self) -> dict:
         """Serialize to dict for JSON storage."""
@@ -44,19 +39,19 @@ class User:
 
     @classmethod
     def from_dict(cls, d: dict):
-        """Create User instance from dict (expects password already encoded)."""
+        """Create User instance from dict (expects password already hashed)."""
         obj = cls.__new__(cls)
         obj.username = d.get("username")
-        obj.password = d.get("password")  # already encoded
+        obj.password = d.get("password")
         obj.balance = float(d.get("balance", 0.0))
         obj.permissions = list(d.get("permissions", []))
         return obj
 
-    # Convenience helpers
+
     def grant_permission(self, grantee_username: str):
         if grantee_username not in self.permissions:
             self.permissions.append(grantee_username)
 
-    def revoke_permission(self, grantee_username: str):
+    def remove_permission(self, grantee_username: str):
         if grantee_username in self.permissions:
             self.permissions.remove(grantee_username)
