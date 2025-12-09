@@ -53,7 +53,8 @@ def admin_menu(admin_user: User, users: dict):
         print("2) View any user's balance")
         print("3) Grant permission (owner grants someone to view owner's balance)")
         print("4) Remove permission")
-        print("5) Logout")
+        print("5) show all users")
+        print("6) exit admin menu")
         choice = input("Select: ").strip()
         if choice == "1":
             """add new user"""
@@ -65,7 +66,7 @@ def admin_menu(admin_user: User, users: dict):
                 print("Username already exists.")
                 continue
             pwd = input("Password for new user: ").strip()
-            
+
             bal_input = input("Initial balance (number, default 0): ").strip()
             bal = float(bal_input) if bal_input else 0.0
 
@@ -102,9 +103,14 @@ def admin_menu(admin_user: User, users: dict):
             users[owner].remove_permission(grantee)
             update_user(users, owner)
             print(f"Permission removed (if existed).")
+
         elif choice == "5":
+            print("All users:")
+            for uname, user in users.items():
+                print(f"- {uname}: balance={user.balance:.2f}, permissions={user.permissions}")
+        elif choice == "6":
             print("Logging out admin.")
-            break
+            break        
         else:
             print("Invalid choice.")
 
