@@ -1,5 +1,5 @@
 # main.py
-from storage import load_users, save_users, add_user, get_user, update_user
+from storage import load_users, add_user, get_user, update_user
 from user import User
 
 
@@ -33,11 +33,12 @@ def main():
 """
 def login(users):
     username = input("Username: ").strip()
-    passe = input("Password: ").strip()
+    
     user1 = get_user(users, username)
     if user1 is None:
         print("No such user.")
         return None
+    passe = input("Password: ").strip()
     if user1.check_password(passe):
         return user1
     print("Wrong password.")
@@ -87,11 +88,11 @@ def admin_menu(admin_user: User, users: dict):
 
                 
         elif choice == "3":
-            owner = input("Owner username (whose balance to allow viewing): ").strip()
+            owner = input("Owner username : ").strip()
             if owner not in users:
                 print("Owner not found.")
                 continue
-            grantee = input("Grant view permission to (username): ").strip()
+            grantee = input("Grant viewing permission to (username): ").strip()
             if grantee not in users:
                 print("Grantee not found.")
                 continue
@@ -138,7 +139,7 @@ def user_menu(user: User, users: dict):
     while True:
         print(f"\n--- WLCOME {user.username} ---")
         print("1) View your balance")
-        print("2) View another user's balance (only if they permitted you)")
+        print("2) View another user's balance")
         print("3) Give permission to another user to view your balance")
         print("4) Remove permission")
         print("5) Edit balance")

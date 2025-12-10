@@ -11,7 +11,7 @@
         "password": "0c0bafa4c9114a520ad10db098b8dbb7b5d68aba19e69426f378dbc8b942df60",
         "balance": 15000.0,
         "permissions": [
-            "ayman"
+            "ayman","mosalah"
         ],
         "salt": "0ef54dbfd7e54517ef33ebdb84c1dca4"
     },
@@ -30,5 +30,12 @@
         "balance": 30000.0,
         "permissions": [],
         "salt": "3e1e9df3d1b91035a54d9213dbfffad9"
+    },
+    "mosalah": {
+        "username": "mosalah",
+        "password": "52497c4a792486750dd1afeb637b5fd2f92cf9b22cb2562799efbc5bcb2bc1d2",
+        "balance": 10000000.0,
+        "permissions": [],
+        "salt": "df8a32d68ccc66c5cc51181d0a7615ac"
     }
 }

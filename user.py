@@ -30,7 +30,7 @@ class User:
         test_input = self.encode_password(plain)
         return test_input == self.password
 
-    def to_dict(self) -> dict:
+    def convert_to_dict(self) -> dict:
         """convert the user object to dict for JSON storage."""
         return {
             "username": self.username,

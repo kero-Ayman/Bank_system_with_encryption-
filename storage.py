@@ -5,7 +5,6 @@ from typing import Dict
 from user import User
 
 USERS_FILE = "users.json"
-ADMIN_USERNAME="not_set"
 ADMIN_BALANCE = 0.0
 
 def load_users() -> Dict[str, User]:
@@ -15,7 +14,7 @@ def load_users() -> Dict[str, User]:
         ADMIN_USERNAME= input("Enter the admin username: ").strip()
         ADMIN_PASSWORD= input("Enter the admin password: ").strip()
         admin = User(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_BALANCE, permissions=[])
-        data = {ADMIN_USERNAME: admin.to_dict()}
+        data = {ADMIN_USERNAME: admin.convert_to_dict()}
         with open(USERS_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
         return {ADMIN_USERNAME: admin}
@@ -23,8 +22,6 @@ def load_users() -> Dict[str, User]:
     with open(USERS_FILE, "r", encoding="utf-8") as f:
         '''read the file content'''
         raw = json.load(f)
-
-
     users = {}
     for uname, udata in raw.items():
         users[uname] = User.from_dict(udata)
@@ -34,14 +31,13 @@ def load_users() -> Dict[str, User]:
     return users
 
 def save_users(users: Dict[str, User]):
-    """Save the users dict (username->User) to USERS_FILE."""
-    serial = {}  # create an empty dictionary first
+    empty_dic = {} 
     for uname, user in users.items():
         # convert each User object to a dictionary
-        serial[uname] = user.to_dict()  
+        empty_dic[uname] = user.convert_to_dict()  
 
     with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(serial, f, indent=4)
+        json.dump(empty_dic, f, indent=4)
 
 def user_exists(users: Dict[str, User], username: str) -> bool:
     return username in users
@@ -63,7 +59,7 @@ def update_user(users: Dict[str, User], username: str):
     with open(USERS_FILE, "r", encoding="utf-8") as f:
         raw = json.load(f)
     # update only this user
-    raw[username] = users[username].to_dict()
+    raw[username] = users[username].convert_to_dict()
     # save back
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(raw, f, indent=4)
