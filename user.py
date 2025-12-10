@@ -8,6 +8,7 @@ class User:
       - password (stored hashed)
       - balance (float)
       - permissions (list of usernames allowed to view this user's balance)
+      - added salt (str) for common passwords 
     """
 
     def __init__(self, username: str, plaintext: str, balance: float = 0.0, permissions=None):
@@ -20,7 +21,7 @@ class User:
 
 
     def encode_password(self, plain: str) -> str:
-        """Hash password using SHA-256 (one-way)."""
+
         return hashlib.sha256((self.salt + plain).encode()).hexdigest()
 
 

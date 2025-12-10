@@ -5,14 +5,15 @@ from typing import Dict
 from user import User
 
 USERS_FILE = "users.json"
-ADMIN_USERNAME = "kerolos"
-ADMIN_PASSWORD = "0000"   # will now be hashed with SHA-256
+ADMIN_USERNAME="not_set"
 ADMIN_BALANCE = 0.0
 
 def load_users() -> Dict[str, User]:
     """Load users from USERS_FILE. Return dict username->User."""
     if not os.path.exists(USERS_FILE):
         # create default admin
+        ADMIN_USERNAME= input("Enter the admin username: ").strip()
+        ADMIN_PASSWORD= input("Enter the admin password: ").strip()
         admin = User(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_BALANCE, permissions=[])
         data = {ADMIN_USERNAME: admin.to_dict()}
         with open(USERS_FILE, "w", encoding="utf-8") as f:
@@ -27,11 +28,9 @@ def load_users() -> Dict[str, User]:
     users = {}
     for uname, udata in raw.items():
         users[uname] = User.from_dict(udata)
-    # Ensure admin exists
-    if ADMIN_USERNAME not in users:
-        admin = User(ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_BALANCE, permissions=[])
-        users[ADMIN_USERNAME] = admin
-        save_users(users)
+  
+
+
     return users
 
 def save_users(users: Dict[str, User]):
@@ -60,4 +59,11 @@ def get_user(users: Dict[str, User], username: str) -> User:
 
 def update_user(users: Dict[str, User], username: str):
 
-    save_users(users)
+        # load existing JSON
+    with open(USERS_FILE, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+    # update only this user
+    raw[username] = users[username].to_dict()
+    # save back
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(raw, f, indent=4)

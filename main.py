@@ -27,13 +27,10 @@ def main():
         else:
             print("Invalid option.")
 
-def clear_screen():
-    try:
-        import os
-        os.system('cls' if os.name == 'nt' else 'clear')
-    except Exception:
-        pass
 
+"""I used this to check if the login is correct or not
+    and to see the user is normal user or admin 
+"""
 def login(users):
     username = input("Username: ").strip()
     passe = input("Password: ").strip()
@@ -51,10 +48,12 @@ def admin_menu(admin_user: User, users: dict):
         print("\n--- ADMIN MENU ---")
         print("1) Add new user")
         print("2) View any user's balance")
-        print("3) Grant permission (owner grants someone to view owner's balance)")
+        print("3) Give permission ")
         print("4) Remove permission")
-        print("5) show all users")
-        print("6) exit admin menu")
+        print("5) Show all users")
+        print("6) Edit balance")
+        print("7) Exit admin menu")
+
         choice = input("Select: ").strip()
         if choice == "1":
             """add new user"""
@@ -65,12 +64,15 @@ def admin_menu(admin_user: User, users: dict):
             if uname in users:
                 print("Username already exists.")
                 continue
-            pwd = input("Password for new user: ").strip()
+            upass = input("Password for new user: ").strip()
 
             bal_input = input("Initial balance (number, default 0): ").strip()
-            bal = float(bal_input) if bal_input else 0.0
+            if bal_input and bal_input.replace('.', '', 1).isdigit():
+                bal = float(bal_input)
+            else:
+                bal = 0.0
 
-            added = add_user(users, uname, pwd, bal)
+            added = add_user(users, uname, upass, bal)
             if added:
                 print(f"User '{uname}' added.")
             else:
@@ -82,6 +84,8 @@ def admin_menu(admin_user: User, users: dict):
                 print("No such user.")
             else:
                 print(f"{target} balance: {t.balance:.2f}")
+
+                
         elif choice == "3":
             owner = input("Owner username (whose balance to allow viewing): ").strip()
             if owner not in users:
@@ -108,7 +112,23 @@ def admin_menu(admin_user: User, users: dict):
             print("All users:")
             for uname, user in users.items():
                 print(f"- {uname}: balance={user.balance:.2f}, permissions={user.permissions}")
+
         elif choice == "6":
+            target = input("Enter username to edit balance: ").strip()
+            t = get_user(users, target)
+            if t is None:
+                print("No such user.")
+                continue
+            new_bal_input = input(f"Enter new balance for {target}: ").strip()
+            if new_bal_input and new_bal_input.replace('.', '', 1).isdigit():
+                new_bal = float(new_bal_input)
+                t.balance = new_bal
+                update_user(users, target)
+                print("Balance updated.")
+            else:
+                print("Invalid balance input.")
+
+        elif choice == "7":
             print("Logging out admin.")
             break        
         else:
@@ -116,12 +136,13 @@ def admin_menu(admin_user: User, users: dict):
 
 def user_menu(user: User, users: dict):
     while True:
-        print(f"\n--- MENU (logged in as {user.username}) ---")
+        print(f"\n--- WLCOME {user.username} ---")
         print("1) View your balance")
         print("2) View another user's balance (only if they permitted you)")
         print("3) Give permission to another user to view your balance")
         print("4) Remove permission")
-        print("5) Logout")
+        print("5) Edit balance")
+        print("6) Logout")
         choice = input("Select: ").strip()
         if choice == "1":
             print(f"Your balance: {user.balance:.2f}")
@@ -148,6 +169,15 @@ def user_menu(user: User, users: dict):
             update_user(users, user.username)
             print("Permission removed (if it existed).")
         elif choice == "5":
+            new_bal_input = input("Enter new balance: ").strip()
+            if new_bal_input and new_bal_input.replace('.', '', 1).isdigit():
+                new_bal = float(new_bal_input)
+                user.balance = new_bal
+                update_user(users, user.username)
+                print("Balance updated.")
+            else:
+                print("Invalid balance input.")
+        elif choice == "6":
             print("Logging out.")
             break
         else:
